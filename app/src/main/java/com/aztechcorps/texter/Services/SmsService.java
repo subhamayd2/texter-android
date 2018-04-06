@@ -6,7 +6,15 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import android.util.Log;
-import android.widget.Toast;
+
+import com.aztechcorps.texter.Models.Contact;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Subhamay on 03-Apr-18.
@@ -19,7 +27,10 @@ public class SmsService {
         this.context = context;
     }
 
-    public void getAllContacts() {
+    public JSONObject getAllContacts() {
+
+        List<Contact> contacts = new ArrayList<>();
+
         ContentResolver cr = context.getContentResolver();
         Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
                 null, null, null, null);
@@ -41,6 +52,7 @@ public class SmsService {
                         Log.i("testing_2", "ID: " + id);
                         Log.i("testing_2", "Name: " + name);
                         Log.i("testing_2", "Phone Number: " + phoneNo);
+                        contacts.add(new Contact(id, name, phoneNo));
                     }
                     pCur.close();
                 }
@@ -49,6 +61,18 @@ public class SmsService {
         if (cur != null) {
             cur.close();
         }
+
+        JSONObject contactsJsonObj = new JSONObject();
+        try {
+            JSONArray contactsJsonArray = new JSONArray();
+            for(Contact c: contacts) {
+                contactsJsonArray.put(c);
+            }
+            contactsJsonObj.put("Contacts", contactsJsonArray);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return contactsJsonObj;
     }
 
     public void getAllSms() {
